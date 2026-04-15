@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitação de Licença - Motoristas</title>
+    <style>
+        :root { --primary-color: #2563eb; --bg-color: #f8fafc; --text-color: #1e293b; }
+        body { font-family: sans-serif; background-color: var(--bg-color); color: var(--text-color); padding: 15px; margin: 0; }
+        .container { max-width: 500px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: auto; }
+        h2 { text-align: center; font-size: 1.4em; margin-bottom: 5px; }
+        p.subtitle { text-align: center; font-size: 0.9em; color: #64748b; margin-bottom: 25px; }
+        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--primary-color); margin-top: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.95em; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        textarea { resize: vertical; min-height: 100px; font-family: sans-serif; }
+        .termos { font-size: 0.85em; color: #64748b; margin-top: 20px; text-align: justify; }
+        button { width: 100%; background: var(--primary-color); color: white; border: none; padding: 16px; margin-top: 25px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        button:disabled { background: #94a3b8; }
+        .loading { display: none; text-align: center; margin-top: 10px; font-weight: 600; color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Solicitação de Licença</h2>
+    <p class="subtitle">Preencha as informações para análise</p>
+    
+    <form id="licencaForm">
+        <div class="section-title">1. Identificação</div>
+        <label>Nome Completo</label>
+        <input type="text" name="nome" required>
+        
+        <label>Matrícula</label>
+        <input type="text" name="matricula" required>
+        
+        <input type="hidden" name="funcao" value="Motorista">
+
+        <div class="section-title">2. Período</div>
+        <label>Data de Início</label>
+        <input type="date" name="data_inicio" required>
+        
+        <label>Data de Término</label>
+        <input type="date" name="data_termino" required>
+
+        <div class="section-title">3. Motivo da Solicitação</div>
+        <label>Descreva o motivo (Ex: Assuntos particulares, consulta médica, etc)</label>
+        <textarea name="motivo" placeholder="Escreva aqui o motivo do seu pedido..." required></textarea>
+
+        <div class="termos">
+            Recomendações de Compliance:
+	<div>
+	Prazo: Sugere-se que a solicitação (exceto em casos de força maior) seja entregue com antecedência mínima de 72 horas para fins de planejamento operacional.
+        <div>
+	Nota: Esta solicitação passará por análise e será avaliada pelo setor responsável para fins de deferimento
+        </div>
+        </div>
+        </div>
+
+        <button type="submit" id="btnEnviar">Enviar Solicitação</button>
+        <div id="msgCarregando" class="loading">Enviando para a planilha...</div>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById('licencaForm');
+    const btn = document.getElementById('btnEnviar');
+    const msg = document.getElementById('msgCarregando');
+
+    // INSIRA SUA URL ABAIXO
+    const URL_GOOGLE_SCRIPT = 'https://script.google.com/macros/s/AKfycbx7QXWv1mKgX2uT7LEkus9If_oCImqG2rjv7-8o_5mks2V1KyspVz-EzElD2awKt2eO/exec';
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btn.disabled = true;
+        btn.style.display = 'none';
+        msg.style.display = 'block';
+
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData).toString();
+
+        fetch(URL_GOOGLE_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: params,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        })
+        .then(() => {
+            alert('Enviado com sucesso!');
+            form.reset();
+        })
+        .catch(() => alert('Erro ao enviar.'))
+        .finally(() => {
+            btn.disabled = false;
+            btn.style.display = 'block';
+            msg.style.display = 'none';
+        });
+    });
+</script>
+</body>
+</html>
